@@ -1,12 +1,6 @@
-// =============================================
-// MASHALLAH BOUTIQUE CENTER - CONFIGURATION
-// Elegance in Every Dress
-// =============================================
+// Mashallah Boutique Center - Configuration
+const SUPABASE_URL = 'https://btcydumpnwmvvvozddde.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_TEE2_UqpbKtlST9YUyuTCw__tEbtYB4';
 
-const CONFIG = {
-    SUPABASE_URL: 'https://btcydumpnwmvvvozddde.supabase.co',
-    SUPABASE_KEY: 'sb_publishable_TEE2_UqpbKtlST9YUyuTCw__tEbtYB4'
-};
-
-// Initialize Supabase Client
-const supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+// Initialize Supabase client
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
