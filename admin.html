@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mashallah Boutique - Admin Panel</title>
     
+    <!-- Supabase MUST load first -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
+        /* All styles remain the same as above */
         * {
             margin: 0;
             padding: 0;
@@ -40,7 +42,6 @@
             min-height: 100vh;
         }
         
-        /* Login Screen */
         .login-container {
             display: flex;
             align-items: center;
@@ -132,7 +133,6 @@
             font-size: 0.8rem;
         }
         
-        /* Dashboard */
         .dashboard {
             display: none;
             min-height: 100vh;
@@ -428,7 +428,6 @@
             display: block;
         }
         
-        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -638,7 +637,6 @@
         </header>
         
         <div class="dashboard-content">
-            <!-- Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-box"></i></div>
@@ -670,7 +668,6 @@
                 </div>
             </div>
             
-            <!-- Products Tab -->
             <div class="tab-pane active" id="productsPane">
                 <div class="data-table-container">
                     <div class="table-header">
@@ -704,7 +701,6 @@
                 </div>
             </div>
             
-            <!-- Orders Tab -->
             <div class="tab-pane" id="ordersPane">
                 <div class="data-table-container">
                     <div class="table-header">
@@ -734,7 +730,6 @@
                 </div>
             </div>
             
-            <!-- Messages Tab -->
             <div class="tab-pane" id="messagesPane">
                 <div class="data-table-container">
                     <div class="table-header">
@@ -813,8 +808,12 @@
         </div>
     </div>
 
-    <script src="config.js"></script>
     <script>
+        // Initialize Supabase client
+        const SUPABASE_URL = 'https://btcydumpnwmvvvozddde.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_TEE2_UqpbKtlST9YUyuTCw__tEbtYB4';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
         let isLoggedIn = false;
         let editingProductId = null;
 
@@ -894,7 +893,6 @@
             }
         }
 
-        // Product Modal
         function openAddProductModal() {
             editingProductId = null;
             document.getElementById('productModalTitle').textContent = 'Add New Product';
@@ -919,7 +917,6 @@
             editingProductId = null;
         }
 
-        // Product Form Submit
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -985,7 +982,7 @@
                         <td style="color: var(--accent-gold);">Rs. ${parseFloat(p.price).toLocaleString()}</td>
                         <td>${new Date(p.created_at).toLocaleDateString()}</td>
                         <td>
-                            <button class="edit-btn" onclick='openEditProductModal(${JSON.stringify(p)})' title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="edit-btn" onclick='openEditProductModal(${JSON.stringify(p).replace(/'/g, "&apos;")})' title="Edit"><i class="fas fa-edit"></i></button>
                             <button class="delete-btn" onclick="deleteProduct('${p.id}')" title="Delete"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
