@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Mashallah Boutique</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0b0b0b;
+            --bg-secondary: #131313;
+            --bg-card: #1a1a1a;
+            --gold: #c9a227;
+            --gold-light: #e0b84d;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #6b6b6b;
+            --border-light: rgba(201, 162, 39, 0.15);
+            --border-gold: rgba(201, 162, 39, 0.3);
+            --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.4);
+            --transition: all 0.3s ease;
+            --error: #ef4444;
+            --success: #10b981;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(201, 162, 39, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(201, 162, 39, 0.02) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 0.6s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .login-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 48px 40px;
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(10px);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .login-logo {
+            width: 90px;
+            height: auto;
+            margin-bottom: 24px;
+            filter: drop-shadow(0 4px 12px rgba(201, 162, 39, 0.15));
+        }
+        
+        .login-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        
+        .login-title span {
+            color: var(--gold);
+        }
+        
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px 16px 14px 46px;
+            background: var(--bg-secondary);
+            border: 1.5px solid var(--border-light);
+            color: var(--text-primary);
+            outline: none;
+            transition: var(--transition);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+        }
+        
+        .form-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+        }
+        
+        .form-input:focus + .input-icon,
+        .input-wrapper:focus-within .input-icon {
+            color: var(--gold);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .password-toggle:hover {
+            color: var(--gold);
+        }
+        
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+        
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .checkbox-wrapper input {
+            display: none;
+        }
+        
+        .checkbox-custom {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-gold);
+            border-radius: 4px;
+            display: inline-block;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .checkbox-wrapper input:checked + .checkbox-custom {
+            background: var(--gold);
+            border-color: var(--gold);
+        }
+        
+        .checkbox-wrapper input:checked + .checkbox-custom::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--bg-primary);
+            font-size: 10px;
+        }
+        
+        .checkbox-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        
+        .forgot-link {
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+        
+        .forgot-link:hover {
+            color: var(--gold-light);
+            text-decoration: underline;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--gold);
+            border: none;
+            color: var(--bg-primary);
+            font-size: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 10px;
+            margin-bottom: 24px;
+        }
+        
+        .login-btn:hover {
+            background: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(201, 162, 39, 0.2);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .login-footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        
+        .login-footer a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .login-footer a:hover {
+            color: var(--gold-light);
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--error);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .error-message.show {
+            display: flex;
+        }
+        
+        .error-message i {
+            font-size: 16px;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            z-index: 20;
+        }
+        
+        .back-link:hover {
+            color: var(--gold);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(11, 11, 11, 0.3);
+            border-top-color: var(--bg-primary);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 36px 24px;
+            }
+            
+            .login-title {
+                font-size: 28px;
+            }
+            
+            .back-link {
+                top: 20px;
+                left: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Website</a>
+    
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="https://i.ibb.co/ynBLgppy/Red-Elegant-Dress-Store-Logo.png" alt="Mashallah Boutique" class="login-logo">
+                <h1 class="login-title">Admin <span>Portal</span></h1>
+                <p class="login-subtitle">Secure Access</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Invalid credentials</span>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" class="form-input" placeholder="admin@mashallah.com" required autocomplete="email">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+                        <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePassword()"></i>
+                    </div>
+                </div>
+                
+                <div class="remember-forgot">
+                    <label class="checkbox-wrapper">
+                        <input type="checkbox" id="rememberMe">
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-label">Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-link" onclick="forgotPassword()">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span id="btnText">Sign In</span>
+                    <span id="btnSpinner" style="display: none;"><i class="fas fa-spinner fa-spin"></i> Signing in...</span>
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p>Protected by secure authentication. Authorized personnel only.</p>
+                <p style="margin-top: 12px;">Demo: admin@mashallah.com / admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // Check if already logged in
+        async function checkSession() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                window.location.href = 'admin-dashboard.html';
+            }
+        }
+        
+        checkSession();
+        
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('togglePassword');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+        
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorEl.classList.add('show');
+        }
+        
+        function hideError() {
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+        
+        function setLoading(isLoading) {
+            const btn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            
+            btn.disabled = isLoading;
+            btnText.style.display = isLoading ? 'none' : 'inline';
+            btnSpinner.style.display = isLoading ? 'inline' : 'none';
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            if (!email || !password) {
+                showError('Please enter both email and password');
+                return;
+            }
+            
+            setLoading(true);
+            
+            try {
+                const { data, error } = await _supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) throw error;
+                
+                if (rememberMe) {
+                    localStorage.setItem('admin_email', email);
+                } else {
+                    localStorage.removeItem('admin_email');
+                }
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Welcome Back!',
+                    text: 'Redirecting to dashboard...',
+                    background: '#1a1a1a',
+                    color: '#ffffff',
+                    confirmButtonColor: '#c9a227',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                
+                setTimeout(() => {
+                    window.location.href = 'admin-dashboard.html';
+                }, 1500);
+                
+            } catch (error) {
+                setLoading(false);
+                showError(error.message || 'Invalid email or password');
+            }
+        });
+        
+        function forgotPassword() {
+            Swal.fire({
+                title: 'Reset Password',
+                text: 'Enter your email to receive a password reset link',
+                input: 'email',
+                inputPlaceholder: 'admin@mashallah.com',
+                background: '#1a1a1a',
+                color: '#ffffff',
+                confirmButtonColor: '#c9a227',
+                showCancelButton: true,
+                confirmButtonText: 'Send Reset Link',
+                preConfirm: async (email) => {
+                    if (!email) {
+                        Swal.showValidationMessage('Please enter your email');
+                        return false;
+                    }
+                    
+                    try {
+                        const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                            redirectTo: window.location.origin + '/admin-login.html'
+                        });
+                        
+                        if (error) throw error;
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Email Sent',
+                            text: 'Check your inbox for the password reset link',
+                            background: '#1a1a1a',
+                            color: '#ffffff',
+                            confirmButtonColor: '#c9a227'
+                        });
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.message,
+                            background: '#1a1a1a',
+                            color: '#ffffff',
+                            confirmButtonColor: '#c9a227'
+                        });
+                    }
+                }
+            });
+        }
+        
+        // Load remembered email
+        const savedEmail = localStorage.getItem('admin_email');
+        if (savedEmail) {
+            document.getElementById('email').value = savedEmail;
+            document.getElementById('rememberMe').checked = true;
+        }
+    </script>
+</body>
+</html>
